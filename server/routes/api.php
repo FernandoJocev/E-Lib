@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
@@ -16,8 +17,26 @@ use App\Http\Controllers\ProductController;
 */
 
 Route::group([
+    'middleware' => 'api',
+    'prefix' => 'auth',
+], function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+Route::group([
+    'middleware' => 'api',
     'prefix' => 'add'
 ], function () {
-    Route::get('/books', [ProductController::class, 'books']);
     Route::post('/addBook', [ProductController::class, 'add']);
+});
+
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'main'
+], function () {
+    Route::get('/books', [ProductController::class, 'books']);
+    Route::get('/detail/{id}', [ProductController::class, 'getDetailBook']);
+    Route::post('/pinjam/{id}', [ProductController::class, 'pinjam']);
+    Route::get('/pinjam/{id}', [ProductController::class, 'getPinjamBuku']);
 });

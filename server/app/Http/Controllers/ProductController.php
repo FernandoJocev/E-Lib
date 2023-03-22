@@ -2,12 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ValidatorHelper;
 use Illuminate\Http\Request;
+use App\Helpers\ValidatorHelper;
 use App\Models\MasterData\MasterDataBuku as Buku;
+use App\Models\User\DetailPinjamBuku;
+use App\Models\User\PinjamBuku;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Facades\Date;
 
 class ProductController extends Controller
 {
+    // public function __construct()
+    // {
+    //     Cloudinary::config(array(
+    //         'cloud_name' => 'dxqu8d8z8',
+    //         'api_key' => '247289557368424',
+    //         'api_secret' => 'd5pA01Csc3eYuQn1I2qBpW9ST-E',
+    //     ));
+    // }
     /**
      * Display a listing of the resource.
      *
@@ -34,10 +46,19 @@ class ProductController extends Controller
                 "message" => $validator->errors()->first(),
             ], 400);
         }
+        // $cloudinary = new Cloudinary();
+        // $cloudinary->createUploadPreset([
+        //     "name" => "my_preset",
+        //     "unsigned" => true,
+        //     "categorization" => "google_tagging,google_video_tagging",
+        //     "auto_tagging" => 0.75,
+        //     "background_removal" => "cloudinary_ai",
+        //     "folder" => "new-products"
+        // ]);
 
         $addBuku = Buku::create(array_merge($validator->validated()));
 
-        if (count($addBuku) == 1) {
+        if ($addBuku != null) {
             return response()->json([
                 "message" => "Berhasil menambahkan data!"
             ], 200);
@@ -54,9 +75,13 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function getDetailBook($id)
     {
-        //
+        $data = Buku::where('id', $id)->first();
+
+        return response()->json([
+            $data,
+        ]);
     }
 
     /**
@@ -65,9 +90,37 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function pinjam(Request $request, $id)
     {
-        //
+        $validator = ValidatorHelper::ValidatorPinjam($request->all());
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        $pinjamBuku = PinjamBuku::create(array_merge($validator->validated(), [
+            'tgl_peminjaman' => Date::now(),
+            'tgl_wajib_pengembalian' => Date::now()->addDay('7'),
+            'status' => '',
+        ]));
+
+        $detailPinjamBuku = DetailPinjamBuku::create([
+            'id_peminjaman' => $pinjamBuku->id,
+            'id_buku' => $id,
+            'jlh' => 1,
+        ]);
+
+        if ($pinjamBuku && $detailPinjamBuku) {
+            return response()->json([
+                'message' => 'Buku dipinjam, silahkan scan barcode untuk melanjutkan'
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'error'
+        ], 500);
     }
 
     /**
@@ -76,9 +129,10 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function getPinjamBuku($id)
     {
-        //
+        $data = PinjamBuku::with('detail_pinjam')->where('id_user', $id)->first();
+        return response()->json($data);
     }
 
     /**

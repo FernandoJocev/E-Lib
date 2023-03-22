@@ -11,15 +11,13 @@
     :modules="modules"
     :centered-slides="true"
     :pagination="{ clickable: true }"
-    @swiper="onSwiper"
-    @slide-change="onSlideChange"
   >
     <swiper-slide>
       <div class="banner">
         <img
           src="../../assets/Images/Banner.png"
           alt="Banner"
-          style="width: 100% !important; height: 400px !important"
+          style="width: 100% !important; height: 600px !important"
         />
       </div>
     </swiper-slide>
@@ -28,7 +26,7 @@
         <img
           src="../../assets/Images/Banner.png"
           alt="Banner"
-          style="width: 100% !important; height: 400px !important"
+          style="width: 100% !important; height: 600px !important"
         />
       </div>
     </swiper-slide>
@@ -77,7 +75,39 @@
   <div class="books-section">
     <div class="books-title-section">
       <div class="books-title">
-        <h2 style="font-weight: 500">Buku pilihan</h2>
+        <h2 style="font-weight: 500">Buku Pilihan</h2>
+      </div>
+      <div class="lihat-semua">
+        <router-link to="/" style="color: #caa648; font-weight: 500">
+          Lihat semua
+        </router-link>
+      </div>
+    </div>
+
+    <div class="books-lists">
+      <div class="books" v-for="data in state?.data">
+        <img v-bind:src="data?.cover_buku" v-bind:alt="data?.nama_buku" />
+        <p>{{ data?.nama_buku }}</p>
+        <h2>{{ data?.penulis }}</h2>
+        <router-link v-bind:to="'/Detail/' + data?.id">Detail</router-link>
+      </div>
+    </div>
+
+    <!-- <div class="books-lists">
+        <div class="books">
+          <img
+            v-bind:src="'data:image/png;base64,' + item?.cover_buku"
+            v-bind:alt="item?.nama_buku"
+          />
+          <p>{{ item?.nama_buku }}</p>
+          <h2>{{ item?.penulis }}</h2>
+          <router-link v-bind:to="'/Detail/' + item?.id">Detail</router-link>
+        </div>
+      </div> -->
+
+    <div class="books-title-section">
+      <div class="books-title">
+        <h2 style="font-weight: 500">Buku Terpopuler</h2>
       </div>
       <div class="lihat-semua">
         <router-link to="/" style="color: #caa648; font-weight: 500">
@@ -87,36 +117,10 @@
     </div>
     <div class="books-lists">
       <div class="books" v-for="item in state?.data">
-        <img
-          v-bind:src="'data:image/png;base64,' + item?.cover_buku"
-          v-bind:alt="item?.nama_buku"
-        />
+        <img v-bind:src="item?.cover_buku" v-bind:alt="item?.nama_buku" />
         <p>{{ item?.nama_buku }}</p>
         <h2>{{ item?.penulis }}</h2>
         <router-link v-bind:to="'/Detail/' + item?.id">Detail</router-link>
-      </div>
-      <div class="books" v-for="item in state?.data">
-        <p>{{ item?.nama_buku }}</p>
-        <img
-          v-bind:src="'data:image/png;base64,' + item?.cover_buku"
-          v-bind:alt="item?.nama_buku"
-        />
-      </div>
-      <div class="books" v-for="item in state?.data">
-        <p>{{ item?.nama_buku }}</p>
-        <img
-          v-bind:src="'data:image/png;base64,' + item?.cover_buku"
-          v-bind:alt="item?.nama_buku"
-        />
-      </div>
-    </div>
-    <div class="books-lists">
-      <div class="books" v-for="item in state?.data">
-        <p>{{ item?.nama_buku }}</p>
-        <img
-          v-bind:src="'data:image/png;base64,' + item?.cover_buku"
-          v-bind:alt="item?.nama_buku"
-        />
       </div>
     </div>
   </div>
@@ -151,24 +155,21 @@ export default {
 
   setup() {
     const state = reactive({ data: null })
-    onMounted(async () => {
-      const { data } = await API.get('add/books')
 
+    onMounted(async () => {
+      const { data } = await API.get('main/books')
       state.data = data.datas
     })
-
-    const onSwiper = (swiper) => {
-      console.log(swiper)
-    }
-    const onSlideChange = () => {
-      console.log('slide change')
-    }
+    // const onSwiper = (swiper) => {
+    //   console.log(swiper)
+    // }
+    // const onSlideChange = () => {
+    //   console.log('slide change')
+    // }
 
     return {
       modules: [Autoplay, Pagination, Navigation],
       state,
-      onSwiper,
-      onSlideChange,
     }
   },
 }
@@ -180,20 +181,31 @@ img {
   height: 250px !important;
 }
 
-.books-lists {
+/* .books-container {
   display: flex;
-  align-items: center;
   justify-content: space-between;
   padding: 20px 20px;
+} */
+
+.books-lists {
+  display: grid;
+  align-items: center;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 20px 20px;
+  column-gap: 75px;
+  row-gap: 20px;
 }
 
 .books-lists .books {
-  background-color: rgba(255, 255, 255, 40%);
+  display: flex;
+  flex-direction: column;
   padding: 20px 20px;
   border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 10%);
 }
 
 .books-lists .books img {
+  margin-bottom: 10px;
   box-shadow: 0px 10px 10px rgba(0, 0, 0, 21%);
 }
 
@@ -209,11 +221,12 @@ img {
 .books-section {
   display: flex;
   flex-direction: column;
+  margin: 20px 0px;
 }
 
 .books-section .books-title-section {
   display: flex;
   justify-content: space-between;
-  margin: 0px 20px;
+  margin: 20px 20px 0px 20px;
 }
 </style>

@@ -11,7 +11,10 @@
       <input type="number" name="jlh_halaman" v-model="FormData.jlh_halaman" />
       <br />
       <label>Cover Buku : </label>
-      <input type="file" ref="file" name="cover_buku" @change="fileHandler" />
+      <img id="previewImage" src="" alt="" />
+      <button id="upload_widget" class="cloudinary-button" @click="uploadImage">
+        Upload Image
+      </button>
       <br />
       <label>Nama Penulis : </label>
       <input type="text" name="penulis" v-model="FormData.penulis" />
@@ -31,7 +34,8 @@
 
 <script>
 import axios from 'axios'
-import { reactive, ref } from 'vue'
+import Crypt from 'crypto-js'
+import { reactive, ref, onMounted } from 'vue'
 import Top from '../layouts/Top-section.vue'
 
 const API = axios.create({
@@ -44,12 +48,17 @@ export default {
   },
 
   setup() {
+    // onMounted(() => {
+    //   let decrypt = Crypt.AES.decrypt(sessionStorage.getItem('token'), '123')
+    //   let text = JSON.parse(decrypt.toString(Crypt.enc.Utf8))
+    //   console.log(text)
+    // })
     const FormData = reactive({
       nama_buku: '',
       jlh_halaman: '',
-      cover_buku: '',
       penulis: '',
       penerbit: '',
+      cover_buku: '',
       isbn: '',
     })
 
@@ -57,35 +66,51 @@ export default {
 
     const state = reactive({ message: null, data: null })
 
-    const fileHandler = () => {
-      const image = file.value.files[0]
-      const reader = new FileReader()
-      reader.onloadend = function () {
-        const cover = reader.result.replace('data:', '').replace(/^.+,/, '')
+    const Widget = cloudinary.createUploadWidget(
+      {
+        cloudName: 'dxqu8d8z8',
+        uploadPreset: 'E-Lib_Assets',
+      },
+      (error, result) => {
+        if (!error && result && result.event === 'success') {
+          document
+            .getElementById('previewImage')
+            .setAttribute('src', result.info.secure_url)
 
-        FormData.cover_buku = cover
+          FormData.cover_buku = result.info.secure_url
+        }
       }
-      reader.readAsDataURL(image)
-    }
+    )
 
     const AddProduct = async (e) => {
       e.preventDefault()
-      const { data } = await API.post('add/addBook', FormData).catch(function (
-        error
-      ) {
-        if (error.response) {
-          state.message = error.response.data.message
-        }
-      })
 
-      state.message = data.message
+      try {
+        const { data } = await API.post('add/addBook', FormData)
+        console.log(data)
+
+        state.message = data.message
+      } catch (error) {
+        state.message = error.response.data.message
+      }
 
       setTimeout(() => {
         state.message = ''
       }, 3000)
     }
 
-    return { AddProduct, fileHandler, FormData, file, state }
+    // const uploadImage = () => {
+    //   Widget.open()
+    // }
+
+    return { AddProduct, FormData, file, state, Widget }
+  },
+
+  methods: {
+    uploadImage(e) {
+      e.preventDefault()
+      this.Widget.open()
+    },
   },
 }
 </script>

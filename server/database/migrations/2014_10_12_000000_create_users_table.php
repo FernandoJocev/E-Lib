@@ -17,9 +17,16 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('foto_profil');
+            $table->bigInteger('sekolah_id');
+            // $table->foreign('sekolah_id')->references('id')->on('master_data_sekolah')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('nis');
+            $table->string('jurusan');
+            $table->string('kelas');
+            $table->text('alamat');
             $table->rememberToken();
+            $table->timestamp('email_verified_at')->nullable();
             $table->timestamps();
         });
     }

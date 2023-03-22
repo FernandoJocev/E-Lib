@@ -49,10 +49,28 @@
 
 <script>
 import Top from '../layouts/Top-section.vue'
+import { onMounted } from 'vue'
+import axios from 'axios'
+import Crypt from 'crypto-js'
+
+const API = axios.create({
+  baseURL: 'http://127.0.0.1:8000/api/',
+})
 
 export default {
   components: {
     Top,
+  },
+
+  setup() {
+    onMounted(async () => {
+      const token = sessionStorage.getItem('token')
+      const bytes = Crypt.AES.decrypt(token, '123')
+      const user = JSON.parse(bytes.toString(Crypt.enc.Utf8))
+
+      console.log(user.id)
+      const { data } = await API.get('', user.id)
+    })
   },
 }
 </script>

@@ -31,4 +31,57 @@ class ValidatorHelper
 
   return Validator::make($data, $rules, $messages);
  }
+
+ public static function ValidatorAuth($data)
+ {
+  $rules = [
+   'email' => ['required', 'email', 'exists:users'],
+   'password' => ['required', 'min:8'],
+  ];
+
+  $messages = [
+   'email.required' => 'Harap masukkan email anda',
+   'email.email' => 'Tolong masukkan email yang valid',
+   'email.exists' => 'Email tidak ditemukan',
+   'password.required' => 'Tolong masukkan password',
+   'password.min' => 'Password minimal 8',
+  ];
+
+  return Validator::make($data, $rules, $messages);
+ }
+
+ public static function ValidatorRegister($data)
+ {
+  $rules = [
+   'nama' => ['required'],
+   'sekolah' => ['required'],
+   'email' => ['required', 'email', 'unique:users'],
+   'password' => ['required', 'min:8'],
+  ];
+
+  $messages = [
+   'nama.required' => 'Harap masukkan nama anda',
+   'sekolah.required' => 'Harap masukkan nama sekolah anda',
+   'email.required' => 'Harap masukkan email anda',
+   'email.email' => 'Tolong masukkan email yang valid',
+   'email.unique' => 'Email sudah terdaftar',
+   'password.required' => 'Tolong masukkan password',
+   'password.min' => 'Password minimal 8',
+  ];
+
+  return Validator::make($data, $rules, $messages);
+ }
+
+ public static function ValidatorPinjam($data)
+ {
+  $rules = [
+   'id_user' => ['required'],
+  ];
+
+  $messages = [
+   'id_user.required' => 'ID User tidak valid',
+  ];
+
+  return Validator::make($data, $rules, $messages);
+ }
 }

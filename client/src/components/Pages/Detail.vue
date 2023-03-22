@@ -5,27 +5,39 @@
     <div class="container">
       <div class="first-container">
         <div class="left-content">
-          <img
-            src="../../assets/buku/Laut Bercerita.jpg"
-            alt="Laut Bercerita"
-          />
+          <img :src="state?.data?.[0]?.cover_buku" alt="Laut Bercerita" />
         </div>
         <div class="right-content">
-          <h1>Laut Bercerita</h1>
-          <h2>Leila S. Chudori</h2>
+          <div class="left-right">
+            <h1 style="font-weight: 500; color: rgb(0, 0, 0) !important">
+              {{ state?.data?.[0]?.nama_buku }}
+            </h1>
+            <h2 style="font-weight: normal !important">
+              {{ state?.data?.[0]?.penulis }}
+            </h2>
+          </div>
+          <div class="right">
+            <router-link to="" @click="Pinjam">Pinjam buku</router-link>
+          </div>
           <hr />
           <h1>Jumlah Halaman</h1>
-          <h2>394</h2>
+          <h2>{{ state?.data?.[0]?.jlh_halaman }}</h2>
           <h1>Tanggal Terbit</h1>
-          <h2>21 Oktober 2017</h2>
+          <h2>{{ state?.data?.[0]?.tgl_terbit }}</h2>
           <h1>Penerbit</h1>
-          <h2>Kepustakaan Populer Gramedia</h2>
+          <h2>{{ state?.data?.[0]?.penerbit }}</h2>
         </div>
         <div class="isbn">
           <h1>ISBN</h1>
-          <h2>9786024246952</h2>
+          <h2>{{ state?.data?.[0]?.isbn }}</h2>
           <h1>Terakhir pinjam</h1>
-          <h2>-</h2>
+          <h2>
+            {{
+              format_date(state?.data?.[0]?.created_at)
+                ? format_date(state?.data?.[0]?.created_at)
+                : '-'
+            }}
+          </h2>
         </div>
       </div>
 
@@ -33,15 +45,9 @@
         <div class="content">
           <h1>Deskripsi Buku</h1>
           <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus
-            sit amet bibendum nulla. Vestibulum consectetur sem quis libero
-            scelerisque ultricies. Donec eu pellentesque nunc. Ut sagittis velit
-            velit, vitae malesuada enim condimentum nec. Duis rhoncus pharetra
-            suscipit. Sed faucibus ex in tortor consequat, sed interdum tortor
-            imperdiet. Sed suscipit malesuada tempus. Proin eget pretium eros.
-            Donec congue sapien non ipsum mollis aliquam. Mauris et enim
-            vestibulum, faucibus elit at, mattis sem. Donec faucibus ex a nulla
-            gravida rhoncus. Nam sagittis nisl eget dui tincidunt interdum.
+            {{
+              state?.data?.[0]?.deskripsi ? state?.data?.[0]?.deskripsi : '-'
+            }}
           </p>
         </div>
         <router-link to="/">Back to Home</router-link>
@@ -51,9 +57,18 @@
 </template>
 
 <script>
-import { onMounted } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import Top from '../layouts/Top-section.vue'
+import axios from 'axios'
+import moment from 'moment'
+import Crypt from 'crypto-js'
+
+const API = axios.create({
+  baseURL: 'http://127.0.0.1:8000/api/',
+})
+
+const token = sessionStorage.getItem('token')
 
 export default {
   components: {
@@ -63,17 +78,57 @@ export default {
   setup() {
     const route = useRoute()
 
+    const state = reactive({ data: null, message: null })
+
     onMounted(() => {
-      console.log(route.params.id)
+      getBook()
+
+      if (token != null) {
+        const bytes = Crypt.AES.decrypt(token, '123')
+        const user = JSON.parse(bytes.toString(Crypt.enc.Utf8))
+        return (formData.id_user = user.id)
+      }
+      return
     })
+
+    const formData = reactive({
+      id_user: '',
+    })
+
+    const getBook = async () => {
+      const { data } = await API.get(`main/detail/${route.params.id}`)
+
+      state.data = data
+    }
+
+    const Pinjam = async () => {
+      const { data } = await API.post(
+        `main/pinjam/${route.params.id}`,
+        formData
+      )
+
+      state.message = data.message
+    }
+
+    return { state, Pinjam }
+  },
+
+  methods: {
+    format_date(value) {
+      return moment(String(value)).format('DD MMM yyyy')
+    },
   },
 }
 </script>
 
 <style scoped>
 img {
-  width: auto;
+  width: 250px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+  color: rgba(0, 0, 0, 60%) !important;
 }
 
 hr {
@@ -82,7 +137,7 @@ hr {
 
 .container h2 {
   font-size: 21px;
-  opacity: 60%;
+  font-weight: 500;
 }
 
 .container {
@@ -112,7 +167,7 @@ hr {
 .isbn {
   position: absolute;
   left: 70%;
-  top: 34%;
+  top: 152px;
 }
 
 .second-container {
