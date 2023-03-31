@@ -2,6 +2,7 @@
   <Top title="Home" />
 
   <swiper
+    v-if="Object.keys(route.query).length == 0"
     :slides-per-view="1"
     :space-between="40"
     :autoplay="{ delay: 2000, disableOnInteraction: false }"
@@ -15,7 +16,7 @@
     <swiper-slide>
       <div class="banner">
         <img
-          src="../../assets/Images/Banner.png"
+          :src="Images.Banner"
           alt="Banner"
           style="width: 100% !important; height: 600px !important"
         />
@@ -24,7 +25,7 @@
     <swiper-slide>
       <div class="banner">
         <img
-          src="../../assets/Images/Banner.png"
+          :src="Images.Banner"
           alt="Banner"
           style="width: 100% !important; height: 600px !important"
         />
@@ -32,41 +33,38 @@
     </swiper-slide>
   </swiper>
 
-  <div class="books-category">
+  <div class="books-category" v-if="Object.keys(route.query).length == 0">
     <router-link to="/" style="color: black">
       <div class="category">
-        <img src="../../assets/Images/Buku kelas 10.png" alt="Buku Kelas 10" />
+        <img :src="Images.BukuKelas10" alt="Buku Kelas 10" />
         <p>Buku Kelas 10</p>
       </div>
     </router-link>
 
     <router-link to="/" style="color: black">
       <div class="category">
-        <img src="../../assets/Images/Buku kelas 11.png" alt="Buku kelas 11" />
+        <img :src="Images.BukuKelas11" alt="Buku kelas 11" />
         <p>Buku Kelas 11</p>
       </div>
     </router-link>
 
     <router-link to="/" style="color: black">
       <div class="category">
-        <img src="../../assets/Images/Buku kelas 12.png" alt="Buku Kelas 12" />
+        <img :src="Images.BukuKelas12" alt="Buku Kelas 12" />
         <p>Buku Kelas 12</p>
       </div>
     </router-link>
 
     <router-link to="/" style="color: black">
       <div class="category">
-        <img src="../../assets/Images/Buku baru.png" alt="Buku Baru" />
+        <img :src="Images.BukuBaru" alt="Buku Baru" />
         <p>Buku Baru</p>
       </div>
     </router-link>
 
     <router-link to="/History" style="color: black">
       <div class="category">
-        <img
-          src="../../assets/Images/History peminjaman.png"
-          alt="History Peminjaman"
-        />
+        <img :src="Images.HistoryPeminjaman" alt="History Peminjaman" />
         <p>History Peminjaman</p>
       </div>
     </router-link>
@@ -124,6 +122,7 @@
       </div>
     </div>
   </div>
+
   <!-- <router-link to="/About">About</router-link>
   <br />
   <router-link to="/History">History</router-link>
@@ -135,15 +134,17 @@
 import { onMounted, reactive } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import axios from 'axios'
-import Top from '../layouts/Top-section.vue'
+import Top from '../../layouts/Top-section.vue'
 import { Autoplay, Pagination, Navigation } from 'swiper'
+import Images from '../../../utils/config-image'
+import { useRoute } from 'vue-router'
 
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
 
 const API = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
+  baseURL: 'http://127.0.0.1:8000/api/',
 })
 
 export default {
@@ -153,12 +154,27 @@ export default {
     SwiperSlide,
   },
 
+  data() {
+    return {
+      Images,
+    }
+  },
+
   setup() {
     const state = reactive({ data: null })
 
+    const route = useRoute()
     onMounted(async () => {
+      if (Object.keys(route.query).length >= 1) {
+        const { data } = await API.get(
+          `main/searchBooks/?search=${route.query.search}`
+        )
+        state.data = data.data
+        return
+      }
       const { data } = await API.get('main/books')
       state.data = data.datas
+      return
     })
     // const onSwiper = (swiper) => {
     //   console.log(swiper)
@@ -170,6 +186,7 @@ export default {
     return {
       modules: [Autoplay, Pagination, Navigation],
       state,
+      route,
     }
   },
 }
@@ -189,7 +206,6 @@ img {
 
 .books-lists {
   display: grid;
-  align-items: center;
   grid-template-columns: repeat(4, 1fr);
   padding: 20px 20px;
   column-gap: 75px;

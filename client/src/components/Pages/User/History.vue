@@ -5,10 +5,7 @@
     <div class="lists">
       <div class="card">
         <div class="left-content">
-          <img
-            src="../../assets/buku/Laut Bercerita.jpg"
-            alt="Laut Bercerita"
-          />
+          <!-- <img src="../../assets/buku/Laut Bercerita.jpg" alt="Laut Bercerita" /> -->
         </div>
         <div class="mid-content">
           <p>Title</p>
@@ -25,10 +22,7 @@
 
       <div class="card">
         <div class="left-content">
-          <img
-            src="../../assets/buku/Laut Bercerita.jpg"
-            alt="Laut Bercerita"
-          />
+          <!-- <img src="../../assets/buku/Laut Bercerita.jpg" alt="Laut Bercerita" /> -->
         </div>
         <div class="mid-content">
           <p>Title</p>
@@ -48,7 +42,7 @@
 </template>
 
 <script>
-import Top from '../layouts/Top-section.vue'
+import Top from '../../layouts/Top-section.vue'
 import { onMounted } from 'vue'
 import axios from 'axios'
 import Crypt from 'crypto-js'

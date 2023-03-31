@@ -36,7 +36,7 @@
 import axios from 'axios'
 import Crypt from 'crypto-js'
 import { reactive, ref, onMounted } from 'vue'
-import Top from '../layouts/Top-section.vue'
+import Top from '../../layouts/Top-section.vue'
 
 const API = axios.create({
   baseURL: 'http://127.0.0.1:8000/api/',

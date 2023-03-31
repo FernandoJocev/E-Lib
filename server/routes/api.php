@@ -36,7 +36,9 @@ Route::group([
     'prefix' => 'main'
 ], function () {
     Route::get('/books', [ProductController::class, 'books']);
+    Route::get('/searchBooks', [ProductController::class, 'searchBooks']);
     Route::get('/detail/{id}', [ProductController::class, 'getDetailBook']);
     Route::post('/pinjam/{id}', [ProductController::class, 'pinjam']);
     Route::get('/pinjam/{id}', [ProductController::class, 'getPinjamBuku']);
+    Route::post('/confirm/{id}', [ProductController::class, 'confirm']);
 });

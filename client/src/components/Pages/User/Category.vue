@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import Top from '../layouts/Top-section.vue'
+import Top from '../../layouts/Top-section.vue'
 export default {
   components: {
     Top,

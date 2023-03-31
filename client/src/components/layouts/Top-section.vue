@@ -14,21 +14,20 @@
     </div>
     <div class="title-mid">
       <div class="search">
-        <input type="text" placeholder="Search" />
+        <form @submit="Search">
+          <input type="text" placeholder="Search" v-model="state.search" />
+        </form>
       </div>
     </div>
+
     <div class="title-right">
       <!-- <div class="profile">
         <img src="../../assets/buku/Laut Bercerita.jpg" alt="" />
       </div> -->
       <div class="login no-account">
-        <button @click="active('active')" v-if="token == null">Masuk</button>
+        <button @click="active('active')" v-if="User == null">Masuk</button>
         <div class="profile" id="profile" v-else>
-          <img
-            src="../../assets/buku/Laut Bercerita.jpg"
-            alt="Profile User"
-            ref="val"
-          />
+          <img :src="Images.LautBercerita" alt="Profile User" ref="val" />
           <div class="dropdown-menu" v-if="state?.dropdown == true">
             <router-link to="/Profile">Profile</router-link>
             <hr style="width: 100%; border: 1px solid black" />
@@ -41,9 +40,6 @@
         </div>
       </div>
     </div>
-  </div>
-  <div class="title-name">
-    <h1>{{ title }}</h1>
   </div>
 
   <div class="background-blur" v-if="state?.active === true">
@@ -87,15 +83,19 @@ import { reactive, onMounted, ref } from 'vue'
 import axios from 'axios'
 import Crypt from 'crypto-js'
 import LoadingPage from '../layouts/Loading.vue'
+import Images from '../../utils/config-image'
+import User from '../../utils/Token'
 
 const API = axios.create({
   baseURL: 'http://127.0.0.1:8000/api/',
 })
 
-const token = sessionStorage.getItem('token')
-
 export default {
   props: ['title'],
+
+  data() {
+    return { Images, User }
+  },
 
   components: {
     LoadingPage,
@@ -103,11 +103,8 @@ export default {
 
   setup() {
     onMounted(() => {
-      if (token != null) {
-        const bytes = Crypt.AES.decrypt(token, '123')
-        const user = JSON.parse(bytes.toString(Crypt.enc.Utf8))
-
-        return (state.user = user)
+      if (User != null) {
+        return (state.user = User)
       }
     })
 
@@ -129,11 +126,13 @@ export default {
     const val = ref()
 
     const state = reactive({
+      data: null,
       active: false,
       message: null,
       dropdown: false,
       loading: false,
       user: null,
+      search: null,
     })
 
     const active = (status) => {
@@ -182,7 +181,6 @@ export default {
       Login,
       active,
       FormData,
-      token,
       Logout,
       active,
       val,
@@ -199,16 +197,15 @@ export default {
   //   })
   // },
 
-  // methods: {
-  //   Dropdown() {
-  //     // if (e == 'open') {
-  //     this.state.dropdown = true
-  //     return
-  //     // }
-  //     // this.state.dropdown = false
-  //     // return
-  //   },
-  // },
+  methods: {
+    Search(e) {
+      e.preventDefault()
+      if (this.state.search != null) {
+        return (window.location.href = `/?search=${this.state.search}`)
+      }
+      return
+    },
+  },
 }
 </script>
 

@@ -19,7 +19,7 @@ import axios from 'axios'
 import Crypt from 'crypto-js'
 
 const API = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/',
+  baseURL: 'http://elib.infinityfreeapp.com/api/',
 })
 
 export default {

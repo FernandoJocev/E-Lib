@@ -17,13 +17,21 @@
             </h2>
           </div>
           <div class="right">
-            <router-link to="" @click="Pinjam">Pinjam buku</router-link>
+            <router-link to="" v-if="User?.id" @click="Pinjam"
+              >Pinjam buku</router-link
+            >
           </div>
           <hr />
           <h1>Jumlah Halaman</h1>
           <h2>{{ state?.data?.[0]?.jlh_halaman }}</h2>
           <h1>Tanggal Terbit</h1>
-          <h2>{{ state?.data?.[0]?.tgl_terbit }}</h2>
+          <h2>
+            {{
+              state?.data?.[0]?.created_at != null
+                ? format_date(state?.data?.[0]?.created_at)
+                : '-'
+            }}
+          </h2>
           <h1>Penerbit</h1>
           <h2>{{ state?.data?.[0]?.penerbit }}</h2>
         </div>
@@ -33,8 +41,8 @@
           <h1>Terakhir pinjam</h1>
           <h2>
             {{
-              format_date(state?.data?.[0]?.created_at)
-                ? format_date(state?.data?.[0]?.created_at)
+              state?.data?.[0]?.tgl_pengembalian != null
+                ? format_date(state?.data?.[0]?.tgl_pengembalian)
                 : '-'
             }}
           </h2>
@@ -59,18 +67,21 @@
 <script>
 import { onMounted, reactive } from 'vue'
 import { useRoute } from 'vue-router'
-import Top from '../layouts/Top-section.vue'
+import Top from '../../layouts/Top-section.vue'
 import axios from 'axios'
 import moment from 'moment'
 import Crypt from 'crypto-js'
+import User from '../../../utils/Token'
 
 const API = axios.create({
   baseURL: 'http://127.0.0.1:8000/api/',
 })
 
-const token = sessionStorage.getItem('token')
-
 export default {
+  data() {
+    return { User }
+  },
+
   components: {
     Top,
   },
@@ -80,19 +91,18 @@ export default {
 
     const state = reactive({ data: null, message: null })
 
+    const formData = reactive({
+      id_user: '',
+    })
+
     onMounted(() => {
       getBook()
 
-      if (token != null) {
-        const bytes = Crypt.AES.decrypt(token, '123')
-        const user = JSON.parse(bytes.toString(Crypt.enc.Utf8))
-        return (formData.id_user = user.id)
+      if (User == null) {
+        return
       }
-      return
-    })
-
-    const formData = reactive({
-      id_user: '',
+      console.log(User.id)
+      formData.id_user = User.id
     })
 
     const getBook = async () => {

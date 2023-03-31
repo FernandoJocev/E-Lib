@@ -17,4 +17,9 @@ class DetailPinjamBuku extends Model
     {
         return $this->hasOne(MasterDataBuku::class, 'id', 'id_buku');
     }
+
+    public function pinjam_buku()
+    {
+        return $this->belongsTo(PinjamBuku::class, 'id_peminjaman', 'id');
+    }
 }

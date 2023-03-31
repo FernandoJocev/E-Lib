@@ -33,6 +33,15 @@ class ProductController extends Controller
         ], 200);
     }
 
+    public function searchBooks(Request $request)
+    {
+        $data = Buku::where('nama_buku', 'LIKE', '%' . $request->get('search') . '%')->get();
+
+        return response()->json([
+            'data' => $data,
+        ], 200);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -77,7 +86,7 @@ class ProductController extends Controller
      */
     public function getDetailBook($id)
     {
-        $data = Buku::where('id', $id)->first();
+        $data = Buku::with('detail_pinjam_buku')->where('id', $id)->first();
 
         return response()->json([
             $data,
@@ -101,8 +110,8 @@ class ProductController extends Controller
         }
 
         $pinjamBuku = PinjamBuku::create(array_merge($validator->validated(), [
-            'tgl_peminjaman' => Date::now(),
-            'tgl_wajib_pengembalian' => Date::now()->addDay('7'),
+            // 'tgl_peminjaman' => Date::now(),
+            // 'tgl_wajib_pengembalian' => Date::now()->addDay('7'),
             'status' => '',
         ]));
 
@@ -131,7 +140,10 @@ class ProductController extends Controller
      */
     public function getPinjamBuku($id)
     {
-        $data = PinjamBuku::with('detail_pinjam')->where('id_user', $id)->first();
+        $data = PinjamBuku::with('detail_pinjam')->where([
+            'id_user' => $id,
+            'status' => ''
+        ])->first();
         return response()->json($data);
     }
 
@@ -142,9 +154,23 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function confirm(Request $request)
     {
-        //
+        if ($request->route('id') == null || !$request->route('id')) {
+            return response()->json([
+                'message' => 'User tidak valid'
+            ], 400);
+        }
+
+        $pinjamBuku = PinjamBuku::where('id_user', $request->route('id'))->update([
+            'tgl_peminjaman' => Date::now(),
+            'tgl_wajib_pengembalian' => Date::now()->addDay('7'),
+            'status' => 'dipinjam',
+        ]);
+
+        return response()->json([
+            'message' => 'Buku terpinjam, silahkan kembalikan pada waktu yang ditentukan yaa'
+        ], 200);
     }
 
     /**
