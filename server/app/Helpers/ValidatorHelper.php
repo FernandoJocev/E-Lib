@@ -14,6 +14,7 @@ class ValidatorHelper
    'cover_buku' => ['required'],
    'penulis' => ['required'],
    'penerbit' => ['required'],
+   'kategori' => ['required'],
    'isbn' => ['required', 'numeric'],
   ];
 
@@ -53,7 +54,7 @@ class ValidatorHelper
  public static function ValidatorRegister($data)
  {
   $rules = [
-   'nama' => ['required'],
+   'name' => ['required'],
    'sekolah' => ['required'],
    'email' => ['required', 'email', 'unique:users'],
    'password' => ['required', 'min:8'],

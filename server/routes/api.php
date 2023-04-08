@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 
@@ -22,6 +21,7 @@ Route::group([
 ], function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/updateProfile/{id}', [AuthController::class, 'updateProfile']);
 });
 
 Route::group([
@@ -35,10 +35,14 @@ Route::group([
     'middleware' => 'api',
     'prefix' => 'main'
 ], function () {
+    Route::get('/getKategori', [ProductController::class, 'getKategori']);
+    Route::get('/booksByKategori/{id}', [ProductController::class, 'booksByKategori']);
     Route::get('/books', [ProductController::class, 'books']);
     Route::get('/searchBooks', [ProductController::class, 'searchBooks']);
-    Route::get('/detail/{id}', [ProductController::class, 'getDetailBook']);
+    Route::post('/detail/{id}', [ProductController::class, 'getDetailBook']);
     Route::post('/pinjam/{id}', [ProductController::class, 'pinjam']);
+    Route::post('/return/{id}', [ProductController::class, 'return']);
     Route::get('/pinjam/{id}', [ProductController::class, 'getPinjamBuku']);
+    Route::get('/history/{id}', [ProductController::class, 'getUserHistory']);
     Route::post('/confirm/{id}', [ProductController::class, 'confirm']);
 });

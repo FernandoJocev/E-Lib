@@ -6,7 +6,6 @@ use App\Helpers\ValidatorHelper;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 
 class AuthController extends Controller
 {
@@ -33,6 +32,32 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'error',
         ], 500);
+    }
+
+    public function updateProfile(Request $request, $id)
+    {
+        $user = User::where('id', $id);
+        if (!$request->all()) {
+            $profile = $user->update([
+                'foto_profil' => null
+            ]);
+
+            $updated = $user->first();
+
+            return response()->json([
+                'message' => 'Profile berhasil di update',
+                'user' => $updated,
+            ], 200);
+        }
+        $profile = $user->update(array_merge($request->all()));
+        $updated = $user->first();
+
+        if ($profile == true) {
+            return response()->json([
+                'message' => 'Profile berhasil di update',
+                'user' => $updated,
+            ], 200);
+        }
     }
 
     /**

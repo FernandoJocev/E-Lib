@@ -87,6 +87,9 @@
         <img v-bind:src="data?.cover_buku" v-bind:alt="data?.nama_buku" />
         <p>{{ data?.nama_buku }}</p>
         <h2>{{ data?.penulis }}</h2>
+        <p class="category-label" v-if="data?.kategori">
+          {{ data?.kategori?.nama }}
+        </p>
         <router-link v-bind:to="'/Detail/' + data?.id">Detail</router-link>
       </div>
     </div>
@@ -203,46 +206,4 @@ img {
   justify-content: space-between;
   padding: 20px 20px;
 } */
-
-.books-lists {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  padding: 20px 20px;
-  column-gap: 75px;
-  row-gap: 20px;
-}
-
-.books-lists .books {
-  display: flex;
-  flex-direction: column;
-  padding: 20px 20px;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 10%);
-}
-
-.books-lists .books img {
-  margin-bottom: 10px;
-  box-shadow: 0px 10px 10px rgba(0, 0, 0, 21%);
-}
-
-.books-lists .books p {
-  color: rgba(0, 0, 0, 60%);
-  font-weight: 500;
-}
-
-.books-lists .books h2 {
-  font-weight: 500;
-}
-
-.books-section {
-  display: flex;
-  flex-direction: column;
-  margin: 20px 0px;
-}
-
-.books-section .books-title-section {
-  display: flex;
-  justify-content: space-between;
-  margin: 20px 20px 0px 20px;
-}
 </style>

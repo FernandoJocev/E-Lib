@@ -16,6 +16,7 @@ const routes = [
   { path: '/Profile', component: Profile },
   { path: '/Pinjam/:username', component: Pinjam },
   { path: '/Confirm/:username', component: Confirm },
+  { path: '/Return/:username', component: Confirm },
   { path: '/Register', component: Register },
   { path: '/About', component: About },
   { path: '/History', component: History },

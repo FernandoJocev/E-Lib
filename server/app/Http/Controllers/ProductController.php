@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Helpers\ValidatorHelper;
+use App\Models\MasterData\MasterKategori as Kategori;
 use App\Models\MasterData\MasterDataBuku as Buku;
 use App\Models\User\DetailPinjamBuku;
 use App\Models\User\PinjamBuku;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Support\Facades\Date;
 
 class ProductController extends Controller
@@ -27,7 +27,7 @@ class ProductController extends Controller
      */
     public function books()
     {
-        $data = Buku::all();
+        $data = Buku::with('kategori')->get();
         return response()->json([
             "datas" => $data,
         ], 200);
@@ -40,6 +40,20 @@ class ProductController extends Controller
         return response()->json([
             'data' => $data,
         ], 200);
+    }
+
+    public function getKategori()
+    {
+        $kategori = Kategori::all();
+
+        return $kategori;
+    }
+
+    public function booksByKategori($id)
+    {
+        $data = Buku::with('kategori')->where('kategori_id', $id)->get();
+
+        return $data;
     }
 
     /**
@@ -64,6 +78,25 @@ class ProductController extends Controller
         //     "background_removal" => "cloudinary_ai",
         //     "folder" => "new-products"
         // ]);
+        if (gettype($request->kategori) != 'integer') {
+            $new_kategori = Kategori::create([
+                'nama' => $request->kategori,
+            ], 200);
+
+            $addBuku = Buku::create(array_merge($validator->validated(), [
+                'kategori_id' => $new_kategori->id,
+            ]));
+
+            if ($addBuku != null) {
+                return response()->json([
+                    "message" => "Berhasil menambahkan data!"
+                ], 200);
+            }
+
+            return response()->json([
+                "message" => "Error"
+            ], 500);
+        }
 
         $addBuku = Buku::create(array_merge($validator->validated()));
 
@@ -75,7 +108,7 @@ class ProductController extends Controller
 
         return response()->json([
             "message" => "Error"
-        ], 400);
+        ], 500);
     }
 
     /**
@@ -84,12 +117,19 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function getDetailBook($id)
+    public function getDetailBook(Request $request, $id)
     {
-        $data = Buku::with('detail_pinjam_buku')->where('id', $id)->first();
+        $buku = Buku::where('id', $id)->first();
+        $detailPinjamBuku = PinjamBuku::with('detail_pinjam')->where([
+            'id_user' =>
+            $request->id_user,
+        ])->whereIn('status', ['pending', 'dipinjam'])->first();
+        $terakhirPinjam = PinjamBuku::with('detail_pinjam')->where('status', 'dikembalikan')->get();
 
         return response()->json([
-            $data,
+            'buku' => $buku,
+            'detail_pinjam' => $detailPinjamBuku,
+            'terakhir_pinjam' => $terakhirPinjam,
         ]);
     }
 
@@ -109,19 +149,37 @@ class ProductController extends Controller
             ], 400);
         }
 
-        $pinjamBuku = PinjamBuku::create(array_merge($validator->validated(), [
-            // 'tgl_peminjaman' => Date::now(),
-            // 'tgl_wajib_pengembalian' => Date::now()->addDay('7'),
-            'status' => '',
-        ]));
+        $checkDup = PinjamBuku::where([
+            'id_user' => $request->id_user,
+            'status' => 'pending',
+        ])->get();
+
+        if (count($checkDup) <= 0) {
+            $pinjamBuku = PinjamBuku::create(array_merge($validator->validated(), [
+                'status' => 'pending',
+            ]));
+
+            $detailPinjamBuku = DetailPinjamBuku::create([
+                'id_peminjaman' => $pinjamBuku->id,
+                'id_buku' => $id,
+                'jlh' => 1,
+            ]);
+
+            if ($pinjamBuku && $detailPinjamBuku) {
+                return response()->json([
+                    'message' => 'Buku dipinjam, silahkan scan barcode untuk melanjutkan'
+                ], 200);
+            }
+        }
 
         $detailPinjamBuku = DetailPinjamBuku::create([
-            'id_peminjaman' => $pinjamBuku->id,
+            'id_peminjaman' => $checkDup[0]->id,
             'id_buku' => $id,
             'jlh' => 1,
         ]);
 
-        if ($pinjamBuku && $detailPinjamBuku) {
+
+        if ($detailPinjamBuku) {
             return response()->json([
                 'message' => 'Buku dipinjam, silahkan scan barcode untuk melanjutkan'
             ], 200);
@@ -140,11 +198,21 @@ class ProductController extends Controller
      */
     public function getPinjamBuku($id)
     {
+        $data = PinjamBuku::with('detail_pinjam')->where(
+            'id_user',
+            $id
+        )->whereIn('status', ['pending', 'dipinjam'])->get();
+        return response()->json($data);
+    }
+
+    public function getUserHistory($id)
+    {
         $data = PinjamBuku::with('detail_pinjam')->where([
             'id_user' => $id,
-            'status' => ''
-        ])->first();
-        return response()->json($data);
+            'status' => 'dikembalikan'
+        ])->whereNotNull('tgl_pengembalian')->get();
+
+        return $data;
     }
 
     /**
@@ -162,15 +230,51 @@ class ProductController extends Controller
             ], 400);
         }
 
-        $pinjamBuku = PinjamBuku::where('id_user', $request->route('id'))->update([
+        $pinjamBuku = PinjamBuku::where([
+            'id_user' => $request->route('id'),
+            'status' => 'pending',
+        ])->update([
             'tgl_peminjaman' => Date::now(),
             'tgl_wajib_pengembalian' => Date::now()->addDay('7'),
             'status' => 'dipinjam',
         ]);
 
+        if ($pinjamBuku) {
+            return response()->json([
+                'message' => 'Buku terpinjam, silahkan kembalikan pada waktu yang ditentukan yaa'
+            ], 200);
+        }
+
         return response()->json([
-            'message' => 'Buku terpinjam, silahkan kembalikan pada waktu yang ditentukan yaa'
-        ], 200);
+            'message' => 'Error'
+        ], 500);
+    }
+
+    public function return(Request $request)
+    {
+        if ($request->route('id') == null || !$request->route('id')) {
+            return response()->json([
+                'message' => 'User tidak valid'
+            ], 400);
+        }
+
+        $pengembalianBuku = PinjamBuku::where([
+            'id_user' => $request->route('id'),
+            'status' => 'dipinjam',
+        ])->update([
+            'tgl_pengembalian' => Date::now(),
+            'status' => 'dikembalikan',
+        ]);
+
+        if ($pengembalianBuku) {
+            return response()->json([
+                'message' => 'Buku sudah dikembalikan, terimakasih sudah meminjam'
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'Error'
+        ], 500);
     }
 
     /**

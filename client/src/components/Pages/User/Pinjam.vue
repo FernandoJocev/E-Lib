@@ -2,38 +2,57 @@
   <div class="pinjam-container">
     <Loading v-if="state?.loading == true" />
     <Top title="Peminjaman Buku" />
-    <div class="qrcode" v-if="state?.data != null">
-      <QrcodeVue
-        :value="
-          'http://localhost:5173/Confirm/' +
-          state?.user?.name +
-          '?id=' +
-          state?.id_user
-        "
-        size="250"
-        level="H"
-      />
+    <div class="qrcode-container">
+      <div class="qrcode" v-if="state?.status?.includes('pending')">
+        <h1>QR Code Peminjaman</h1>
+        <QrcodeVue
+          :value="
+            'http://localhost:5173/Confirm/' +
+            state?.user?.name +
+            '?id=' +
+            state?.id_user
+          "
+          size="250"
+          level="H"
+        />
+      </div>
+
+      <div class="qrcode" v-if="state?.status?.includes('dipinjam')">
+        <h1>QR Code Pengembalian</h1>
+        <QrcodeVue
+          :value="
+            'http://localhost:5173/Return/' +
+            state?.user?.name +
+            '?id=' +
+            state?.id_user
+          "
+          size="250"
+          level="H"
+        />
+      </div>
     </div>
 
-    <div class="no-books" v-if="state?.data == null">
+    <div class="no-books" v-if="state?.data === null">
       <h1>Kamu belum meminjam buku, silahkan pinjam hehe</h1>
     </div>
 
     <div class="lists" v-if="state?.data != null">
-      <div v-for="datas in state?.data?.detail_pinjam" class="card">
-        <div class="left-content">
-          <img :src="datas?.buku?.cover_buku" :alt="datas?.buku?.nama_buku" />
-        </div>
-        <div class="mid-content">
-          <p>Title</p>
-          <h1>{{ datas?.buku?.nama_buku }}</h1>
-          <p>Author</p>
-          <h1>{{ datas?.buku?.penulis }}</h1>
-          <p>Tanggal pinjam</p>
-          <h1>{{ format_date(state?.data?.tgl_peminjaman) }}</h1>
-        </div>
-        <div class="right-content">
-          <router-link :to="'/Detail/' + datas?.buku?.id">Detail</router-link>
+      <div v-for="data in state?.data">
+        <div v-for="datas in data?.detail_pinjam" class="card">
+          <div class="left-content">
+            <img :src="datas?.buku?.cover_buku" :alt="datas?.buku?.nama_buku" />
+          </div>
+          <div class="mid-content">
+            <p>Title</p>
+            <h1>{{ datas?.buku?.nama_buku }}</h1>
+            <p>Author</p>
+            <h1>{{ datas?.buku?.penulis }}</h1>
+            <p>Status</p>
+            <h1>{{ data?.status === 'pending' ? 'Pending' : 'Dipinjam' }}</h1>
+          </div>
+          <div class="right-content">
+            <router-link :to="'/Detail/' + datas?.buku?.id">Detail</router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -74,6 +93,8 @@ export default {
       const { data } = await API.get(`main/pinjam/${User.id}`)
 
       if (Object.keys(data).length >= 1) {
+        let key = data?.indexOf()
+        state.status = data[(key += 1)]?.status + ' ' + data[(key += 1)]?.status
         state.data = data
         state.loading = false
         return
@@ -87,6 +108,7 @@ export default {
       user: null,
       id_user: null,
       loading: false,
+      status: null,
     })
 
     return { state }

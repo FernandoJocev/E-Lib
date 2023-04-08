@@ -6,6 +6,7 @@ import BukuKelas11 from '../assets/Images/Buku kelas 11.png'
 import BukuKelas12 from '../assets/Images/Buku kelas 12.png'
 import HistoryPeminjaman from '../assets/Images/History peminjaman.png'
 import Zeta from '../assets/vids/Zeta.gif'
+import Success4 from '../assets/vids/Success 4.gif'
 
 const Images = {
   LautBercerita,
@@ -16,6 +17,7 @@ const Images = {
   BukuKelas12,
   HistoryPeminjaman,
   Zeta,
+  Success4,
 }
 
 export default Images

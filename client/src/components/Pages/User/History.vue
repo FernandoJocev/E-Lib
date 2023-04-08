@@ -2,69 +2,69 @@
   <div>
     <Top title="History" />
 
-    <div class="lists">
-      <div class="card">
-        <div class="left-content">
-          <!-- <img src="../../assets/buku/Laut Bercerita.jpg" alt="Laut Bercerita" /> -->
-        </div>
-        <div class="mid-content">
-          <p>Title</p>
-          <h1>Laut Bercerita</h1>
-          <p>Author</p>
-          <h1>Eireinei Fangidae</h1>
-          <p>Tanggal pinjam</p>
-          <h1>20 Januari 2023</h1>
-        </div>
-        <div class="right-content">
-          <router-link to="/Detail/1">Detail</router-link>
-        </div>
-      </div>
+    <div class="no-history" v-if="state?.data === null">
+      <h1>Kamu belum meminjam buku, silahkan pinjam</h1>
+    </div>
 
-      <div class="card">
-        <div class="left-content">
-          <!-- <img src="../../assets/buku/Laut Bercerita.jpg" alt="Laut Bercerita" /> -->
-        </div>
-        <div class="mid-content">
-          <p>Title</p>
-          <h1>Laut Bercerita</h1>
-          <p>Author</p>
-          <h1>Eireinei Fangidae</h1>
-          <p>Tanggal pinjam</p>
-          <h1>20 Januari 2023</h1>
-        </div>
-        <div class="right-content">
-          <router-link to="/Detail/2">Detail</router-link>
+    <div class="lists" v-if="state?.data != null">
+      <div v-for="datas in state?.data">
+        <div class="card" v-for="data in datas.detail_pinjam">
+          <div class="left-content">
+            <img :src="data?.buku?.cover_buku" alt="Laut Bercerita" />
+          </div>
+          <div class="mid-content">
+            <p>Title</p>
+            <h1>{{ data?.buku?.nama_buku }}</h1>
+            <p>Author</p>
+            <h1>{{ data?.buku?.penulis }}</h1>
+            <p>Tanggal pinjam</p>
+            <h1>{{ datas?.tgl_peminjaman }}</h1>
+          </div>
+          <div class="right-content">
+            <router-link to="/Detail/1">Detail</router-link>
+          </div>
         </div>
       </div>
     </div>
-    <router-link class="main-button" to="/">Back</router-link>
   </div>
+  <router-link class="main-button" to="/">Back</router-link>
 </template>
 
 <script>
 import Top from '../../layouts/Top-section.vue'
-import { onMounted } from 'vue'
+import { onMounted, reactive } from 'vue'
 import axios from 'axios'
-import Crypt from 'crypto-js'
+import Images from '../../../utils/config-image'
+import User from '../../../utils/Token'
 
 const API = axios.create({
   baseURL: 'http://127.0.0.1:8000/api/',
 })
 
 export default {
+  data() {
+    return { Images }
+  },
+
   components: {
     Top,
   },
 
   setup() {
     onMounted(async () => {
-      const token = sessionStorage.getItem('token')
-      const bytes = Crypt.AES.decrypt(token, '123')
-      const user = JSON.parse(bytes.toString(Crypt.enc.Utf8))
+      if (Object.keys(User) <= 0) {
+        window.location.href = '/'
+        return
+      }
+      const { data } = await API.get(`main/history/${User.id}`)
 
-      console.log(user.id)
-      const { data } = await API.get('', user.id)
+      if (data.length >= 1) {
+        state.data = data
+      }
     })
+
+    const state = reactive({ data: null })
+    return { state }
   },
 }
 </script>

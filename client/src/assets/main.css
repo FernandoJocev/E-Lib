@@ -15,6 +15,51 @@
   color: rgba(0, 0, 0, 41%) !important;
 }
 
+.main-button {
+  display: block;
+  text-align: center;
+  background-color: whitesmoke;
+  padding: 10px 10px;
+  border-radius: 5px;
+  margin: 30px 40px;
+  border: none;
+  cursor: pointer;
+}
+
+.active {
+  color: #0047ff !important;
+}
+
+.category-label {
+  background-color: rgba(0, 71, 255, 20%);
+  border-radius: 5px;
+  width: 30%;
+  text-align: center;
+}
+
+.background-blur img {
+  width: 850px;
+  height: 550px;
+  border-radius: 50px;
+}
+
+.notification h1 {
+  color: black;
+  font-weight: bolder;
+}
+
+.modal-open {
+  overflow: hidden !important;
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+}
+
 h1 {
   font-size: 24px;
   color: #0047ff;
@@ -68,7 +113,128 @@ body {
   opacity: 70%;
 }
 
+/*Category CSS */
+.category-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.category-container .category-section {
+  display: flex;
+  min-height: 86.5vh;
+}
+
+.category-container .category-section .category-lists {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 25vw;
+  border-right: 1px solid rgba(0, 0, 0, 10%);
+  position: sticky;
+  top: 0;
+}
+
+.category-container .category-section .category-lists .category-title {
+  display: flex;
+  column-gap: 5px;
+  padding: 20px 0px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 20%);
+}
+
+.category-container .category-section .category-lists .categories {
+  width: 100%;
+  cursor: pointer;
+}
+
+.category-container .category-section .category-lists .categories h1 {
+  border-bottom: 1px solid rgba(0, 0, 0, 20%);
+  text-align: center;
+  padding: 10px 0px;
+}
+
+.books-section .books-title h1 {
+  text-align: center;
+  font-weight: 550;
+}
+
+.books-section .books-category-lists {
+  display: grid;
+  grid-template-columns: repeat(3, 16rem);
+  padding: 20px 20px;
+  column-gap: 75px;
+  row-gap: 20px;
+}
+
+.books-section .books-category-lists .books {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 10%);
+}
+
+.books-category-lists .books img {
+  margin-bottom: 10px;
+  box-shadow: 0px 10px 10px rgba(0, 0, 0, 21%);
+  height: 250px;
+}
+
+.books-category-lists .books p {
+  color: rgba(0, 0, 0, 60%);
+  font-weight: 500;
+}
+
+.books-category-lists .books h2 {
+  font-weight: 500;
+}
+
 /* Home CSS */
+.books-lists {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 20px 20px;
+  column-gap: 75px;
+  row-gap: 20px;
+}
+
+.books-lists .books {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 10%);
+}
+
+.books-lists .books img {
+  margin-bottom: 10px;
+  box-shadow: 0px 10px 10px rgba(0, 0, 0, 21%);
+}
+
+.books-lists .books p {
+  color: rgba(0, 0, 0, 60%);
+  font-weight: 500;
+}
+
+.books-lists .books h2 {
+  font-weight: 500;
+}
+
+.books-section {
+  display: flex;
+  flex-direction: column;
+  margin: 20px 0px;
+}
+
+.books-section .books-title-section {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 20px 0px 20px;
+}
+
 .books-category {
   padding: 20px 20px;
   display: flex;
@@ -87,7 +253,7 @@ body {
 
 /* Profile CSS */
 .profile-container {
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -97,15 +263,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 100%;
+  min-height: 86.5vh;
 }
 
 .profile-container .profile-content-container .left-content {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-height: 86.5vh;
   row-gap: 50px;
-  height: 100%;
   border-right: 1px solid rgba(0, 0, 0, 20%);
   padding: 50px 80px;
 }
@@ -194,6 +360,12 @@ body {
   flex-direction: column;
 }
 
+.pinjam-container .qrcode-container {
+  display: flex;
+  justify-content: center;
+  column-gap: 20rem;
+}
+
 .pinjam-container .qrcode {
   display: flex;
   flex-direction: column;
@@ -221,6 +393,13 @@ body {
 }
 
 /* History CSS */
+.no-history {
+  min-height: 55vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .lists {
   background-color: rgba(208, 191, 145, 25%);
   margin: 20px 30px;
@@ -263,26 +442,19 @@ body {
   margin: 20px 20px 20px 10px;
 }
 
-.main-button {
-  display: block;
-  text-align: center;
-  background-color: whitesmoke;
-  padding: 10px 10px;
-  border-radius: 5px;
-  margin: 30px 40px;
-  border: none;
-  cursor: pointer;
-}
-
 /* Top-Section CSS */
 .title {
   display: flex;
+  position: sticky;
+  top: 0;
   justify-content: space-between;
+  background-color: white;
   align-items: center;
   border-bottom: 1px solid black;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 10%);
   padding: 10px 20px;
   column-gap: 50px;
+  z-index: 500;
 }
 
 .title .title-left {
@@ -313,6 +485,7 @@ body {
 }
 
 .title .title-right .profile {
+  position: relative;
   border: 1px solid rgba(0, 0, 0, 15%);
   border-radius: 50%;
   width: 50px;
@@ -334,23 +507,42 @@ body {
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 10%);
 }
 
-.title-name {
+.login .profile .dropdown-menu {
+  position: absolute;
+  top: 55px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 40%);
   display: flex;
-  justify-content: center;
-  margin: 10px 0px;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgb(198, 198, 198);
+  padding: 5px 0px;
+  border-radius: 5px;
+  row-gap: 5px;
+  width: fit-content;
+  z-index: 800;
+}
+
+.login .profile .dropdown-menu a {
+  cursor: pointer;
+  z-index: 999;
+  text-align: center;
+  color: black;
+  width: 100%;
+  margin: 0px 10px;
 }
 
 /* Top Section, Login Section */
 .background-blur {
   display: flex;
   align-items: center;
+  justify-content: center;
   height: 100vh;
   width: 100%;
   position: fixed;
   top: 0;
   left: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 100;
+  z-index: 800;
 }
 
 .login-section form h1 {
@@ -383,6 +575,7 @@ body {
   margin: 0px 30%;
   background-blend-mode: darken;
   border-radius: 5px;
+  overflow: hidden;
 }
 
 .login-section form {
@@ -442,28 +635,6 @@ body {
   flex-direction: column;
   align-items: center;
   row-gap: 5px;
-}
-
-.login .profile .dropdown-menu {
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 40%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: rgb(198, 198, 198);
-  padding: 5px 0px;
-  border-radius: 5px;
-  row-gap: 5px;
-  width: fit-content;
-  z-index: 800;
-}
-
-.login .profile .dropdown-menu a {
-  cursor: pointer;
-  z-index: 999;
-  text-align: center;
-  color: black;
-  width: 100%;
-  margin: 0px 10px;
 }
 
 /* Top Section, Register Section */

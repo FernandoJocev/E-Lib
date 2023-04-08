@@ -5,44 +5,53 @@
     <div class="container">
       <div class="first-container">
         <div class="left-content">
-          <img :src="state?.data?.[0]?.cover_buku" alt="Laut Bercerita" />
+          <img :src="state?.data?.cover_buku" alt="Laut Bercerita" />
         </div>
         <div class="right-content">
           <div class="left-right">
             <h1 style="font-weight: 500; color: rgb(0, 0, 0) !important">
-              {{ state?.data?.[0]?.nama_buku }}
+              {{ state?.data?.nama_buku }}
             </h1>
             <h2 style="font-weight: normal !important">
-              {{ state?.data?.[0]?.penulis }}
+              {{ state?.data?.penulis }}
             </h2>
           </div>
           <div class="right">
-            <router-link to="" v-if="User?.id" @click="Pinjam"
+            <router-link to="" v-if="state?.buku === null" @click="Pinjam"
               >Pinjam buku</router-link
             >
+            <p style="font-size: 20px" v-if="state?.status === 'pending'">
+              <i>Silahkan scan barcode untuk meminjam buku</i>
+            </p>
+            <p style="font-size: 20px" v-if="state?.status === 'dipinjam'">
+              <i>Buku sedang di pinjam</i>
+            </p>
           </div>
           <hr />
           <h1>Jumlah Halaman</h1>
-          <h2>{{ state?.data?.[0]?.jlh_halaman }}</h2>
+          <h2>{{ state?.data?.jlh_halaman }}</h2>
           <h1>Tanggal Terbit</h1>
           <h2>
             {{
-              state?.data?.[0]?.created_at != null
-                ? format_date(state?.data?.[0]?.created_at)
+              state?.data?.created_at != null
+                ? format_date(state?.data?.created_at)
                 : '-'
             }}
           </h2>
           <h1>Penerbit</h1>
-          <h2>{{ state?.data?.[0]?.penerbit }}</h2>
+          <h2>{{ state?.data?.penerbit }}</h2>
         </div>
         <div class="isbn">
           <h1>ISBN</h1>
-          <h2>{{ state?.data?.[0]?.isbn }}</h2>
+          <h2>{{ state?.data?.isbn }}</h2>
           <h1>Terakhir pinjam</h1>
           <h2>
             {{
-              state?.data?.[0]?.tgl_pengembalian != null
-                ? format_date(state?.data?.[0]?.tgl_pengembalian)
+              state?.buku?.id == route.params.id
+                ? format_date(
+                    state?.data?.detail_pinjam_buku?.pinjam_buku
+                      ?.tgl_pengembalian
+                  )
                 : '-'
             }}
           </h2>
@@ -53,9 +62,7 @@
         <div class="content">
           <h1>Deskripsi Buku</h1>
           <p>
-            {{
-              state?.data?.[0]?.deskripsi ? state?.data?.[0]?.deskripsi : '-'
-            }}
+            {{ state?.data?.deskripsi ? state?.data?.deskripsi : '-' }}
           </p>
         </div>
         <router-link to="/">Back to Home</router-link>
@@ -72,6 +79,7 @@ import axios from 'axios'
 import moment from 'moment'
 import Crypt from 'crypto-js'
 import User from '../../../utils/Token'
+import Swal from 'sweetalert'
 
 const API = axios.create({
   baseURL: 'http://127.0.0.1:8000/api/',
@@ -89,38 +97,83 @@ export default {
   setup() {
     const route = useRoute()
 
-    const state = reactive({ data: null, message: null })
+    const state = reactive({
+      data: null,
+      detail_pinjam: null,
+      message: null,
+      loading: false,
+      buku: null,
+      status: null,
+      terakhir_pinjam: null,
+    })
 
     const formData = reactive({
       id_user: '',
     })
 
     onMounted(() => {
-      getBook()
-
       if (User == null) {
         return
       }
-      console.log(User.id)
       formData.id_user = User.id
+      getBook()
     })
 
     const getBook = async () => {
-      const { data } = await API.get(`main/detail/${route.params.id}`)
-
-      state.data = data
-    }
-
-    const Pinjam = async () => {
       const { data } = await API.post(
-        `main/pinjam/${route.params.id}`,
+        `main/detail/${route.params.id}`,
         formData
       )
 
-      state.message = data.message
+      data?.detail_pinjam?.detail_pinjam?.forEach((item) => {
+        if (item.buku.id == route.params.id) {
+          state.buku = item.buku
+          state.status = data.detail_pinjam.status
+        }
+      })
+
+      data?.terakhir_pinjam?.forEach((item) => {
+        item.detail_pinjam.forEach((buku) => {
+          state.terakhir_pinjam = buku
+        })
+      })
+
+      state.detail_pinjam = data.detail_pinjam
+      state.data = data.buku
+      // console.log(state.terakhir_pinjam)
+      // console.log(state.data)
+      // console.log(state.detail_pinjam)
+      // console.log(state.status)
+      return
     }
 
-    return { state, Pinjam }
+    const Pinjam = async () => {
+      try {
+        const { data } = await API.post(
+          `main/pinjam/${route.params.id}`,
+          formData
+        )
+        Swal({
+          title: 'Success',
+          text: data.message,
+          icon: 'success',
+          button: true,
+        }).then(() => {
+          window.location.reload()
+        })
+      } catch (e) {
+        Swal({
+          title: 'Error',
+          text: e.response.data.message,
+          icon: 'error',
+          button: true,
+        }).then(() => {
+          window.location.reload()
+        })
+      }
+    }
+
+    return { state, Pinjam, route }
   },
 
   methods: {

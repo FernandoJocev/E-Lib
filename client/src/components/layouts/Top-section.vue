@@ -15,7 +15,7 @@
     <div class="title-mid">
       <div class="search">
         <form @submit="Search">
-          <input type="text" placeholder="Search" v-model="state.search" />
+          <input type="text" placeholder="Search" id="search" />
         </form>
       </div>
     </div>
@@ -27,7 +27,13 @@
       <div class="login no-account">
         <button @click="active('active')" v-if="User == null">Masuk</button>
         <div class="profile" id="profile" v-else>
-          <img :src="Images.LautBercerita" alt="Profile User" ref="val" />
+          <img
+            :src="Images.LautBercerita"
+            alt="Profile User"
+            ref="val"
+            v-if="User?.foto_profil == null"
+          />
+          <img :src="User?.foto_profil" alt="Profile User" ref="val" v-else />
           <div class="dropdown-menu" v-if="state?.dropdown == true">
             <router-link to="/Profile">Profile</router-link>
             <hr style="width: 100%; border: 1px solid black" />
@@ -81,6 +87,7 @@
 <script>
 import { reactive, onMounted, ref } from 'vue'
 import axios from 'axios'
+import { useRoute } from 'vue-router'
 import Crypt from 'crypto-js'
 import LoadingPage from '../layouts/Loading.vue'
 import Images from '../../utils/config-image'
@@ -103,9 +110,17 @@ export default {
 
   setup() {
     onMounted(() => {
+      const route = useRoute()
       if (User != null) {
-        return (state.user = User)
+        state.user = User
       }
+      if (route?.query?.search != null) {
+        document
+          .getElementById('search')
+          .setAttribute('value', route.query.search)
+        return
+      }
+      return
     })
 
     document.addEventListener('click', function handlerCloseDropdwon(e) {
@@ -123,7 +138,17 @@ export default {
       return
     })
 
-    const val = ref()
+    const active = (status) => {
+      const body = document.getElementById('body')
+      if (status === 'active') {
+        state.active = true
+        body.setAttribute('class', 'modal-open')
+      } else {
+        state.active = false
+        body.removeAttribute('class')
+      }
+      return
+    }
 
     const state = reactive({
       data: null,
@@ -132,17 +157,9 @@ export default {
       dropdown: false,
       loading: false,
       user: null,
-      search: null,
     })
 
-    const active = (status) => {
-      if (status === 'active') {
-        state.active = true
-      } else {
-        state.active = false
-      }
-      return
-    }
+    const val = ref()
 
     const FormData = reactive({
       email: '',
@@ -200,8 +217,10 @@ export default {
   methods: {
     Search(e) {
       e.preventDefault()
-      if (this.state.search != null) {
-        return (window.location.href = `/?search=${this.state.search}`)
+      const search = document.getElementById('search')
+      if (search.value != null) {
+        window.location.href = `/?search=${search.value}`
+        return
       }
       return
     },
