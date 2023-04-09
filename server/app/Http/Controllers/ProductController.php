@@ -98,7 +98,9 @@ class ProductController extends Controller
             ], 500);
         }
 
-        $addBuku = Buku::create(array_merge($validator->validated()));
+        $addBuku = Buku::create(array_merge($validator->validated(), [
+            'kategori_id' => $request->kategori,
+        ]));
 
         if ($addBuku != null) {
             return response()->json([

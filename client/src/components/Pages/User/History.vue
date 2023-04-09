@@ -21,7 +21,7 @@
             <h1>{{ datas?.tgl_peminjaman }}</h1>
           </div>
           <div class="right-content">
-            <router-link to="/Detail/1">Detail</router-link>
+            <router-link :to="'/Detail/' + data?.buku?.id">Detail</router-link>
           </div>
         </div>
       </div>
@@ -57,6 +57,8 @@ export default {
         return
       }
       const { data } = await API.get(`main/history/${User.id}`)
+
+      console.log(data)
 
       if (data.length >= 1) {
         state.data = data

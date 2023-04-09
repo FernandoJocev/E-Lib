@@ -115,8 +115,6 @@ export default {
 
     const AddProduct = async (e) => {
       e.preventDefault()
-      console.log(FormData.kategori)
-      return
 
       try {
         const { data } = await API.post('add/addBook', FormData)
